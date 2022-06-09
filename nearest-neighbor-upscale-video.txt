@@ -1,0 +1,51 @@
+Nearest Neighbor Upscale Low-Res Video File
+===========================================
+The two pieces of software I used were Shotcut (GUI) and ffmpeg (command line).
+* https://shotcut.org/
+* https://ffmpeg.org/
+I gave a summary in the description of the playlist. I will reproduce that here.
+~~~ Technical Details ~~~
+Processing steps:
+1. In Shotcut: mov video upscaled to 1440x1080, 4:3, original framerate using nearest neighbor interpolation. Exported as H.264 mp4 file.
+2. Using ffmpeg: original audio (from mov file) remuxed with new video (from mp4 file) to a mkv file for YouTube uploading.
+~~~ End ~~~
+For you, I wrote these more detailed instructions.
+~~~ Instructions ~~~
+For each video clip, I did this:
+1. Run command:
+         ffprobe original-file.mov
+   to determine original framerate and aspect ratio.
+   Look for "fps" in the output.
+   Example excerpt from output:
+         Stream #0:1(eng): Video: svq3 (SVQ3 / 0x33515653), yuvj420p(pc), 80x60, 50 kb/s, 15 fps, 15 tbr, 600 tbn, 600 tbc (default)
+   So we know that this clip should be 15 FPS. Make a note of that.
+   From 80x60 image size, we know that the aspect ratio is 4:3.
+   Some basic math:
+         60 / 3 = 20
+         20 * 4 = 80
+         20 * 3 = 60
+   To get this information, you could also use VLC:
+          Tools > Codec Information
+[ For steps 2-5, I made a tutorial video.
+  Watch here: https://youtu.be/GK6mtkrxHIs ]
+2. Open Shotcut. Make a new custom video mode with the settings we just found.
+   * Set the image size (resolution) to
+     the number of lines that you want to upscale to (1080)
+     in the aspect ratio of the original video (4:3) using square pixels.
+     Some basic math:
+           1080 / 3 = 360
+           360 * 4 = 1440
+           360 * 3 = 1080
+     So we know the size should be 1440x1080 pixels.
+   * Set the framerate to that of the original video file.
+      From our note earlier, we know that it should be 15 FPS.
+3. Make a new Shotcut project using the custom video mode.
+4. Drag the original video file onto the timeline.
+5. Export the video with the settings shown in the tutorial video.
+6. Run command:
+         ffmpeg -i shotcut-export.mp4 -i original-file.mov -map 0:v:0 -map 1:a:0 -c copy final-muxed-output.mkv
+   to combine the upscaled video (shotcut-export.mp4)
+   with the original file's audio
+   to produce the MKV file (final-muxed-output.mkv)
+   that you will upload to YouTube.
+~~~ End ~~~
